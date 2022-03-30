@@ -1,0 +1,68 @@
+<div><h1 style="margin-left: 1rem">Расписание по станции</h1></div>
+<mat-form-field appearance="outline">
+  <mat-label style="margin-left: 1rem">Станция</mat-label>
+  <input style="margin-left: 1rem"
+         type="text"
+         placeholder="Pick one"
+         aria-label="Number"
+         matInput
+         [formControl]="myControl2"
+         [matAutocomplete]="auto2"
+         (input)="onInputSchedule($event)">
+  <mat-autocomplete #auto2="matAutocomplete">
+    <mat-option *ngFor="let option2 of this.options2" [value]="option2">
+      {{option2}}
+    </mat-option>
+  </mat-autocomplete>
+</mat-form-field>
+<button *ngIf="true" mat-button class="not-liked" (click)="getSchedule()">
+  <!--    (click)="buyTicket(tr.id,i)-->
+  <!-- [disabled]="this.trainInfoService.dateNow>tr.pointsOfSchedule[0].arrivalTime"  -->
+  <mat-icon>
+    schedule
+  </mat-icon>
+  Показать расписание
+</button>
+<div><h1> {{st}}</h1></div>
+<mat-grid-list cols="5" rowHeight="50px" style="background: lavender; border: solid">
+  <mat-grid-tile>Поезд №</mat-grid-tile>
+  <mat-grid-tile>Сообщением</mat-grid-tile>
+  <mat-grid-tile>Прибытие</mat-grid-tile>
+  <mat-grid-tile>Отправление</mat-grid-tile>
+  <mat-grid-tile>статус</mat-grid-tile>
+</mat-grid-list>
+<div *ngIf="isLoaded">
+  <mat-grid-list *ngFor="let trainSchedule of trains; let idx = index"
+                 cols="5" rowHeight="50px" style="background: white; border: solid">
+    <mat-grid-tile>
+      <div>{{trainSchedule.trainNumber}}</div>
+
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <div>
+        <span>{{trainSchedule.pointsOfSchedule[0].nameStation}}--</span>
+        <span>{{trainSchedule.pointsOfSchedule[trainSchedule.pointsOfSchedule.length - 1].nameStation}}</span>
+      </div>
+    </mat-grid-tile>
+    <mat-grid-tile>{{this.arrdep[idx].arr | date:'dd.MM.yyyy HH:mm'}}</mat-grid-tile>
+    <mat-grid-tile>{{this.arrdep[idx].dep | date:'dd.MM.yyyy HH:mm'}}</mat-grid-tile>
+    <mat-grid-tile>{{this.arrdep[idx].status}}
+    <mat-icon></mat-icon></mat-grid-tile>
+
+  </mat-grid-list>
+</div>
+<!--    <div *ngIf="this.trainsForSchedule">-->
+<!--      <div *ngIf="this.trainsForSchedule.length>0; else  emptyTrains">-->
+<!--        <div *ngFor="let train of trainsForSchedule">-->
+<!--          -->
+
+<!--        </div>-->
+
+<!--      </div>-->
+
+
+<!--    </div>-->
+
+
+<!--    <ng-template #emptyTrains> по станции не проходят поезда в обозримом будущем </ng-template>-->
+
