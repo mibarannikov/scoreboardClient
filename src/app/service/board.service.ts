@@ -12,8 +12,8 @@ export class BoardService {
   constructor(private http: HttpClient) {
   }
 
-  public scheduleUpdate(): Observable<any> {
-    return this.http.get(BOARD_API + 'update');
+  public scheduleUpdate(nameStation: string): Observable<any> {
+    return this.http.get(BOARD_API + 'update?nameStation='+nameStation);
   }
 
   getSearchStations(value: any):Observable<any>{

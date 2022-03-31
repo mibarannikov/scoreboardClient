@@ -1,9 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {BoardService} from "../service/board.service";
 import {Train} from "../model/train";
 import {FormBuilder, FormControl, Validators} from "@angular/forms";
 import {PointOfSchedule} from "../model/pointOfSchedule";
-import {MatFormFieldControl} from "@angular/material/form-field";
 
 
 @Component({
@@ -13,17 +12,17 @@ import {MatFormFieldControl} from "@angular/material/form-field";
 })
 export class BoardComponent implements OnInit {
 
-  public arrdep!: [{ arr: string | undefined, dep: string | undefined, status: string }] ;
-  trains:Train[] = [];
+  public arrdep: PointOfSchedule[] = [];
+  trains: Train[] = [];
+  statuses:string[] =[];
   myControl2 = new FormControl('', Validators.required);
   options2: string[] = [];
-  isLoaded:boolean=false;
+  isLoaded: boolean = false;
   st: any;
 
-
-  constructor(private boardService:BoardService,
-              private fb: FormBuilder
-  ) { }
+  constructor(private boardService: BoardService,
+              private fb: FormBuilder) {
+  }
 
   ngOnInit(): void {
     this.boardService.getSearchStations('').subscribe(data => {
@@ -35,18 +34,8 @@ export class BoardComponent implements OnInit {
   }
 
   getSchedule() {
-   //  this.isLoaded=false;
-   //  setInterval(() => {
-   //    console.log(1)
-   //    this.boardService.scheduleUpdate().subscribe(data=>{
-   //      console.log('-----------',data);
-   //      this.trains=data;
-   //      this.isLoaded=true;
-   //    });
-   // }, 1000);
-
     this.st = this.myControl2.value;
-    this.getTrainsForSchedule();
+    this.getTrainsForSchedule()
   }
 
   onInputSchedule(event: Event) {
@@ -57,67 +46,65 @@ export class BoardComponent implements OnInit {
         this.options2.push(s.nameStation);
       }
     });
-
   }
 
   private getTrainsForSchedule() {
     this.isLoaded = false;
+    this.initSchedule();
     // @ts-ignore
-    this.arrdep = [];
-
-
-     setInterval(() => {
-       console.log('1');
-       this.boardService.scheduleUpdate().subscribe(data=>{
-         console.log('-----------------------2');
-         this.trains = data;
-         console.log(data)
-         if (this.trains) {
-           for (let tr of this.trains) {
-             let arrPoint: PointOfSchedule | undefined = tr.pointsOfSchedule.find(p => p.nameStation === this.myControl2.value);
-             // @ts-ignore
-             let status;
-             console.log('+++++++++',arrPoint?.delayed);
-             switch (arrPoint?.delayed) {
-               case 'schedule': {
-                 // @ts-ignore
-                 if ((new Date(arrPoint.arrivalTime) < new Date()) && (new Date(arrPoint.departureTime) > new Date())) {
-                   status = 'Прибыл';
-                 } else {
-                   status = 'Ожидается прибытие';
-                 }
-                 break;
-               }
-               case 'running_with_errors': {
-                 // @ts-ignore
-                 if ((new Date(arrPoint.arrivalTime) < new Date()) && (new Date(arrPoint.departureTime) > new Date())) {
-                   status = 'Прибыл';
-                 } else {
-                   status = 'Задерживается';
-                 }
-                 break;
-               }
-               case 'cancel': {
-                 status = 'Отменен';
-                 break;
-               }
-               default: {
-                 status = "нет информации";
-                 break;
-               }
-             }
-
-             console.log(arrPoint)
-             // @ts-ignore
-             this.arrdep.push({arr: arrPoint.arrivalTime, dep: arrPoint.departureTime, status: status})
-           }
-         }
-         this.isLoaded = true;
-       });
-    }, 5000);
-
-
-
-
+    setInterval(()=>{
+      this.initSchedule();
+    },3000);
   }
+
+  initSchedule(){
+    this.boardService.scheduleUpdate(this.st).subscribe(data => {
+      this.arrdep = [];
+      this.statuses=[];
+      this.trains = data;
+      let arrPoint;
+      if (this.trains) {
+        for (let tr of this.trains) {
+          let status='';
+          // @ts-ignore
+          switch (tr.pointsOfSchedule.find(p => p.nameStation === this.st).delayed) {
+            case 'schedule': {
+              // @ts-ignore
+              if ((new Date(tr.pointsOfSchedule.find(p => p.nameStation === this.st).arrivalTime) < new Date())
+                // @ts-ignore
+                && (new Date(tr.pointsOfSchedule.find(p => p.nameStation === this.st).departureTime) > new Date())) {
+                status = 'Прибыл';
+              } else {
+                status = 'Ожидается прибытие';
+              }
+              break;
+            }
+            case 'running_with_errors': {
+              // @ts-ignore
+              if ((new Date(tr.pointsOfSchedule.find(p => p.nameStation === this.st).arrivalTime) < new Date())
+                // @ts-ignore
+                && (new Date(tr.pointsOfSchedule.find(p => p.nameStation === this.st).departureTime) > new Date())) {                status = 'Прибыл';
+              } else {
+                status = 'Задерживается';
+              }
+              break;
+            }
+            case 'cancel': {
+              status = 'Отменен';
+              break;
+            }
+            default: {
+              status = "нет информации";
+              break;
+            }
+          }
+          // @ts-ignore
+          this.arrdep.push(tr.pointsOfSchedule.find(p => p.nameStation === this.st));
+          this.statuses.push(status);
+        }
+      }
+      this.isLoaded = true;
+    });
+  }
+
 }

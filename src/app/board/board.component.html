@@ -31,7 +31,7 @@
   <mat-grid-tile>Отправление</mat-grid-tile>
   <mat-grid-tile>статус</mat-grid-tile>
 </mat-grid-list>
-<div *ngIf="isLoaded">
+<div *ngIf="isLoaded; else notLoaded">
   <mat-grid-list *ngFor="let trainSchedule of trains; let idx = index"
                  cols="5" rowHeight="50px" style="background: white; border: solid">
     <mat-grid-tile>
@@ -44,13 +44,15 @@
         <span>{{trainSchedule.pointsOfSchedule[trainSchedule.pointsOfSchedule.length - 1].nameStation}}</span>
       </div>
     </mat-grid-tile>
-    <mat-grid-tile>{{this.arrdep[idx].arr | date:'dd.MM.yyyy HH:mm'}}</mat-grid-tile>
-    <mat-grid-tile>{{this.arrdep[idx].dep | date:'dd.MM.yyyy HH:mm'}}</mat-grid-tile>
-    <mat-grid-tile>{{this.arrdep[idx].status}}
-    <mat-icon></mat-icon></mat-grid-tile>
+    <mat-grid-tile>{{this.arrdep[idx].arrivalTime | date:'dd.MM.yyyy HH:mm'}}</mat-grid-tile>
+    <mat-grid-tile>{{this.arrdep[idx].departureTime | date:'dd.MM.yyyy HH:mm'}}</mat-grid-tile>
+    <mat-grid-tile>{{this.statuses[idx]}}
+    <mat-icon>{{this.arrdep[idx].delayed}}</mat-icon></mat-grid-tile>
 
   </mat-grid-list>
+
 </div>
+<ng-template #notLoaded style="text-align: center"> Не выбрана станция </ng-template>
 <!--    <div *ngIf="this.trainsForSchedule">-->
 <!--      <div *ngIf="this.trainsForSchedule.length>0; else  emptyTrains">-->
 <!--        <div *ngFor="let train of trainsForSchedule">-->
